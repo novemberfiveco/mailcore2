@@ -108,6 +108,8 @@ namespace mailcore {
         virtual void setClientIdentity(IMAPIdentity * clientIdentity);
 
         virtual String * gmailUserDisplayName() DEPRECATED_ATTRIBUTE;
+
+        virtual bool isIdleEnabled();
         
         virtual IMAPFolderInfoOperation * folderInfoOperation(String * folder);
         virtual IMAPFolderStatusOperation * folderStatusOperation(String * folder);
@@ -208,9 +210,20 @@ namespace mailcore {
         dispatch_queue_t mDispatchQueue;
 #endif
         String * mGmailUserDisplayName;
-        
+        bool mIdleEnabled;
+
+        /*! Create new IMAP session */
         virtual IMAPAsyncConnection * session();
+        /*! Returns a new or an existing session, it is best suited to run the IMAP command
+         in the specified folder. */
         virtual IMAPAsyncConnection * matchingSessionForFolder(String * folder);
+        /*! Returns a session with minimum operation queue among already created ones.
+         If @param filterByFolder is true, then function filters sessions with
+         predicate (lastFolder() EQUALS TO @param folder). In case of @param folder is NULL
+         the function would search a session among non-selected ones. */
+        virtual IMAPAsyncConnection * sessionWithMinQueue(bool filterByFolder, String * folder);
+        /*! Returns existant or new session with empty operation queue, if it can.
+         Otherwise, returns the session with the minimum size of the operation queue. */
         virtual IMAPAsyncConnection * availableSession();
         virtual IMAPMessageRenderingOperation * renderingOperation(IMAPMessage * message,
                                                                    String * folder,

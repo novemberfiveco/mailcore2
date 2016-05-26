@@ -1000,7 +1000,9 @@ void String::appendUTF8CharactersLength(const char * UTF8Characters, unsigned in
 
 void String::appendUTF8Characters(const char * UTF8Characters)
 {
-    appendUTF8CharactersLength(UTF8Characters, (unsigned int) strlen(UTF8Characters));
+    if (UTF8Characters != NULL) {
+        appendUTF8CharactersLength(UTF8Characters, (unsigned int) strlen(UTF8Characters));
+    }
 }
 
 void String::appendCharacters(const UChar * unicodeCharacters)
@@ -2396,6 +2398,10 @@ Array * String::componentsSeparatedByString(String * separator)
         p = location + separator->length();
     }
     unsigned int length = (unsigned int) (mLength - (p - mUnicodeChars));
+    if (length > mLength) {
+        fprintf(stderr, "trying to split string: |%s| |%s| %i %i %p %p\n", MCUTF8(this), MCUTF8(separator), length, mLength, p, mUnicodeChars);
+        return result;
+    }
     MCAssert(length <= mLength);
     String * value = new String(p, length);
     result->addObject(value);

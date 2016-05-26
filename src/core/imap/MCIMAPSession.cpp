@@ -341,6 +341,7 @@ void IMAPSession::init()
     mFolderMsgCount = 0;
     mFirstUnseenUid = 0;
     mYahooServer = false;
+    mRamblerRuServer = false;
     mLastFetchedSequenceNumber = 0;
     mCurrentFolder = NULL;
     pthread_mutex_init(&mIdleLock, NULL);
@@ -355,6 +356,7 @@ void IMAPSession::init()
     mShouldDisconnect = false;
     mLoginResponse = NULL;
     mGmailUserDisplayName = NULL;
+    mUnparsedResponseData = NULL;
 }
 
 IMAPSession::IMAPSession()
@@ -364,6 +366,7 @@ IMAPSession::IMAPSession()
 
 IMAPSession::~IMAPSession()
 {
+    MC_SAFE_RELEASE(mUnparsedResponseData);
     MC_SAFE_RELEASE(mGmailUserDisplayName);
     MC_SAFE_RELEASE(mLoginResponse);
     MC_SAFE_RELEASE(mClientIdentity);
@@ -482,6 +485,11 @@ bool IMAPSession::isVoIPEnabled()
 String * IMAPSession::loginResponse()
 {
     return mLoginResponse;
+}
+
+Data * IMAPSession::unparsedResponseData()
+{
+    return mUnparsedResponseData;
 }
 
 static bool hasError(int errorCode)
@@ -643,9 +651,16 @@ void IMAPSession::connect(ErrorCode * pError)
         MC_SAFE_REPLACE_RETAIN(String, mWelcomeString, String::stringWithUTF8Characters(mImap->imap_response));
         mYahooServer = (mWelcomeString->locationOfString(MCSTR("yahoo.com")) != -1);
 #ifdef LIBETPAN_HAS_MAILIMAP_163_WORKAROUND
-        if(mWelcomeString->locationOfString(MCSTR("Coremail System IMap Server Ready")) != -1)
+        if (mWelcomeString->locationOfString(MCSTR("Coremail System IMap Server Ready")) != -1)
             mailimap_set_163_workaround_enabled(mImap, 1);
 #endif
+        if (mWelcomeString->locationOfString(MCSTR("Courier-IMAP")) != -1) {
+            LOCK();
+            mIdleEnabled = true;
+            UNLOCK();
+            mNamespaceEnabled = true;
+        }
+        mRamblerRuServer = (mHostname->locationOfString(MCSTR(".rambler.ru")) != -1);
     }
     
     mState = STATE_CONNECTED;
@@ -708,7 +723,10 @@ void IMAPSession::login(ErrorCode * pError)
     MCLog("login");
     
     MCAssert(mState == STATE_CONNECTED);
-    
+
+    MC_SAFE_RELEASE(mLoginResponse);
+    MC_SAFE_RELEASE(mUnparsedResponseData);
+
     if (mImap->imap_connection_info != NULL) {
         if (mImap->imap_connection_info->imap_capability != NULL) {
             mailimap_capability_data_free(mImap->imap_connection_info->imap_capability);
@@ -824,6 +842,13 @@ void IMAPSession::login(ErrorCode * pError)
     else if (r == MAILIMAP_ERROR_PARSE) {
         mShouldDisconnect = true;
         * pError = ErrorParse;
+
+        Data * unparsed_response = Data::data();
+        if (mImap->imap_stream_buffer != NULL) {
+            unparsed_response = Data::dataWithBytes(mImap->imap_stream_buffer->str, (unsigned int) mImap->imap_stream_buffer->len);
+        }
+        MC_SAFE_REPLACE_RETAIN(Data, mUnparsedResponseData, unparsed_response);
+
         return;
     }
     else if (hasError(r)) {
@@ -835,6 +860,9 @@ void IMAPSession::login(ErrorCode * pError)
         }
         MC_SAFE_REPLACE_COPY(String, mLoginResponse, response);
         if (response->locationOfString(MCSTR("not enabled for IMAP use")) != -1) {
+            * pError = ErrorGmailIMAPNotEnabled;
+        }
+        else if (response->locationOfString(MCSTR("IMAP access is disabled")) != -1) {
             * pError = ErrorGmailIMAPNotEnabled;
         }
         else if (response->locationOfString(MCSTR("bandwidth limits")) != -1) {
@@ -854,6 +882,9 @@ void IMAPSession::login(ErrorCode * pError)
         }
         else if (response->locationOfString(MCSTR("OCF12")) != -1) {
             * pError = ErrorYahooUnavailable;
+        }
+        else if (response->locationOfString(MCSTR("Login to your account via a web browser")) != -1) {
+            * pError = ErrorOutlookLoginViaWebBrowser;
         }
         else {
             * pError = ErrorAuthentication;
@@ -2820,10 +2851,20 @@ Data * IMAPSession::fetchMessageAttachment(String * folder, bool identifier_is_u
     section = mailimap_section_new_part(section_part);
     fetch_att = mailimap_fetch_att_new_body_peek_section(section);
     fetch_type = mailimap_fetch_type_new_fetch_att(fetch_att);
-    
+
+#ifdef LIBETPAN_HAS_MAILIMAP_RAMBLER_WORKAROUND
+    if (mRamblerRuServer && (encoding == EncodingBase64 || encoding == EncodingUUEncode)) {
+        mailimap_set_rambler_workaround_enabled(mImap, 1);
+    }
+#endif
+
     r = fetch_imap(mImap, identifier_is_uid, identifier, fetch_type, &text, &text_length);
     mailimap_fetch_type_free(fetch_type);
-    
+
+#ifdef LIBETPAN_HAS_MAILIMAP_RAMBLER_WORKAROUND
+    mailimap_set_rambler_workaround_enabled(mImap, 0);
+#endif
+
     mProgressCallback = NULL;
     
     MCLog("had error : %i", r);

@@ -209,6 +209,8 @@ namespace mailcore {
         virtual bool isAutomaticConfigurationEnabled();
 
         virtual String * loginResponse();
+        /** Filled by unparsed protocol data in case of ParseError (only for login for now). */
+        virtual Data * unparsedResponseData();
         
     public: // private
         virtual void loginIfNeeded(ErrorCode * pError);
@@ -259,6 +261,7 @@ namespace mailcore {
         unsigned int mFolderMsgCount;
         uint32_t mFirstUnseenUid;
         bool mYahooServer;
+        bool mRamblerRuServer;
         
         unsigned int mLastFetchedSequenceNumber;
         String * mCurrentFolder;
@@ -275,6 +278,7 @@ namespace mailcore {
         
         String * mLoginResponse;
         String * mGmailUserDisplayName;
+        Data * mUnparsedResponseData;
         
         void init();
         void bodyProgress(unsigned int current, unsigned int maximum);
