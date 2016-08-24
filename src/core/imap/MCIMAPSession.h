@@ -121,6 +121,15 @@ namespace mailcore {
                                             IMAPProgressCallback * progressCallback, ErrorCode * pError);
         virtual Data * fetchMessageAttachmentByUID(String * folder, uint32_t uid, String * partID,
                                                    Encoding encoding, IMAPProgressCallback * progressCallback, ErrorCode * pError);
+
+        virtual void fetchMessageAttachmentToFileByChunksByUID(String * folder, uint32_t uid, String * partID,
+                                                       uint32_t estimatedSize, Encoding encoding,
+                                                       String * outputFile, uint32_t chunkSize,
+                                                       IMAPProgressCallback * progressCallback, ErrorCode * pError);
+        virtual void fetchMessageAttachmentToFileByUID(String * folder, uint32_t uid, String * partID,
+                                                       Encoding encoding, String * outputFile,
+                                                       IMAPProgressCallback * progressCallback, ErrorCode * pError);
+
         virtual Data * fetchMessageAttachmentByNumber(String * folder, uint32_t number, String * partID,
                                                       Encoding encoding, IMAPProgressCallback * progressCallback, ErrorCode * pError);
         virtual HashMap * fetchMessageNumberUIDMapping(String * folder, uint32_t fromUID, uint32_t toUID,
@@ -262,6 +271,7 @@ namespace mailcore {
         uint32_t mFirstUnseenUid;
         bool mYahooServer;
         bool mRamblerRuServer;
+        bool mHermesServer;
         
         unsigned int mLastFetchedSequenceNumber;
         String * mCurrentFolder;
@@ -305,9 +315,14 @@ namespace mailcore {
         Data * fetchMessageAttachment(String * folder, bool identifier_is_uid,
                                       uint32_t identifier, String * partID,
                                       Encoding encoding, IMAPProgressCallback * progressCallback, ErrorCode * pError);
+        // in case of wholePart is false, receives range [offset, length]
+        Data * fetchNonDecodedMessageAttachment(String * folder, bool identifier_is_uid,
+                                      uint32_t identifier, String * partID,
+                                      bool wholePart, uint32_t offset, uint32_t length,
+                                      Encoding encoding, IMAPProgressCallback * progressCallback, ErrorCode * pError);
         void storeLabels(String * folder, bool identifier_is_uid, IndexSet * identifiers, IMAPStoreFlagsRequestKind kind, Array * labels, ErrorCode * pError);
     };
-    
+
 }
 
 #endif
