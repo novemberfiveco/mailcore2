@@ -1,5 +1,6 @@
 #!/bin/sh
 
+PATH=/ms/bin:/usr/sbin:/usr/bin:/bin:/sbin
 build_version=4
 package_name=mailcore2-android
 ctemplate_build_version=3
@@ -75,20 +76,20 @@ download_dep "openssl-android" $openssl_build_version
 download_dep "cyrus-sasl-android" $cyrus_sasl_build_version
 
 # Start building.
-ANDROID_PLATFORM=android-16
+ANDROID_PLATFORM=android-19
 archs="armeabi armeabi-v7a x86"
 for arch in $archs ; do
   TARGET_ARCH_ABI=$arch
   build
 done
 ANDROID_PLATFORM=android-21
-archs="arm64-v8a"
+archs="arm64-v8a x86_64"
 for arch in $archs ; do
   TARGET_ARCH_ABI=$arch
   build
 done
 
-ANDROID_PLATFORM=android-16
+ANDROID_PLATFORM=android-19
 cd "$current_dir/../src/java"
 mkdir -p "$current_dir/bin"
 javac -d "$current_dir/bin" -source 1.6 -target 1.6 -classpath $ANDROID_SDK/platforms/$ANDROID_PLATFORM/android.jar com/libmailcore/*.java
