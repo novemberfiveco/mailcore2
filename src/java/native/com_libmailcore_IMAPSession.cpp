@@ -155,6 +155,15 @@ JNIEXPORT jobject JNICALL Java_com_libmailcore_IMAPSession_unsubscribeFolderOper
     return result;
 }
 
+JNIEXPORT jobject JNICALL Java_com_libmailcore_IMAPSession_customCommand
+  (JNIEnv * env, jobject obj, jstring command, jboolean urgent)
+{
+    MC_POOL_BEGIN;
+    jobject result = MC_TO_JAVA(MC_JAVA_NATIVE_INSTANCE->customCommand(MC_FROM_JAVA(String, command), (bool) urgent));
+    MC_POOL_END;
+    return result;
+}
+
 JNIEXPORT jobject JNICALL Java_com_libmailcore_IMAPSession_appendMessageOperation
   (JNIEnv * env, jobject obj, jstring path, jbyteArray data, jint flags, jobject customFlags)
 {

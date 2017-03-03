@@ -16,7 +16,7 @@
 #ifdef __cplusplus
 
 namespace mailcore {
-    
+
     class IMAPOperation;
     class IMAPFetchFoldersOperation;
     class IMAPAppendMessageOperation;
@@ -44,66 +44,66 @@ namespace mailcore {
     class OperationQueueCallback;
     class IMAPCustomCommandOperation;
     class IMAPCheckAccountOperation;
-    
+
     class MAILCORE_EXPORT IMAPAsyncSession : public Object {
     public:
         IMAPAsyncSession();
         virtual ~IMAPAsyncSession();
-        
+
         virtual void setHostname(String * hostname);
         virtual String * hostname();
-        
+
         virtual void setPort(unsigned int port);
         virtual unsigned int port();
-        
+
         virtual void setUsername(String * username);
         virtual String * username();
-        
+
         virtual void setPassword(String * password);
         virtual String * password();
-        
+
         // To authenticate using OAuth2, username and oauth2token should be set.
         // auth type to use is AuthTypeOAuth2.
         virtual void setOAuth2Token(String * token);
         virtual String * OAuth2Token();
-        
+
         virtual void setAuthType(AuthType authType);
         virtual AuthType authType();
-        
+
         virtual void setConnectionType(ConnectionType connectionType);
         virtual ConnectionType connectionType();
-        
+
         virtual void setTimeout(time_t timeout);
         virtual time_t timeout();
-        
+
         virtual void setCheckCertificateEnabled(bool enabled);
         virtual bool isCheckCertificateEnabled();
-        
+
         virtual void setVoIPEnabled(bool enabled);
         virtual bool isVoIPEnabled();
-        
+
         virtual void setDefaultNamespace(IMAPNamespace * ns);
         virtual IMAPNamespace * defaultNamespace();
-        
+
         virtual void setAllowsFolderConcurrentAccessEnabled(bool enabled);
         virtual bool allowsFolderConcurrentAccessEnabled();
-        
+
         virtual void setMaximumConnections(unsigned int maxConnections);
         virtual unsigned int maximumConnections();
-        
+
         virtual void setConnectionLogger(ConnectionLogger * logger);
         virtual ConnectionLogger * connectionLogger();
-        
+
 #ifdef __APPLE__
         virtual void setDispatchQueue(dispatch_queue_t dispatchQueue);
         virtual dispatch_queue_t dispatchQueue();
 #endif
-        
+
         virtual void setOperationQueueCallback(OperationQueueCallback * callback);
         virtual OperationQueueCallback * operationQueueCallback();
         virtual bool isOperationQueueRunning();
         virtual void cancelAllOperations();
-        
+
         virtual IMAPIdentity * serverIdentity();
         virtual IMAPIdentity * clientIdentity();
         virtual void setClientIdentity(IMAPIdentity * clientIdentity);
@@ -111,35 +111,35 @@ namespace mailcore {
         virtual String * gmailUserDisplayName() DEPRECATED_ATTRIBUTE;
 
         virtual bool isIdleEnabled();
-        
+
         virtual IMAPFolderInfoOperation * folderInfoOperation(String * folder);
         virtual IMAPFolderStatusOperation * folderStatusOperation(String * folder);
-        
+
         virtual IMAPFetchFoldersOperation * fetchSubscribedFoldersOperation();
         virtual IMAPFetchFoldersOperation * fetchAllFoldersOperation();
-        
+
         virtual IMAPOperation * renameFolderOperation(String * folder, String * otherName);
         virtual IMAPOperation * deleteFolderOperation(String * folder);
         virtual IMAPOperation * createFolderOperation(String * folder);
-        
+
         virtual IMAPOperation * subscribeFolderOperation(String * folder);
         virtual IMAPOperation * unsubscribeFolderOperation(String * folder);
-        
+
         virtual IMAPAppendMessageOperation * appendMessageOperation(String * folder, Data * messageData, MessageFlag flags, Array * customFlags = NULL);
         virtual IMAPAppendMessageOperation * appendMessageOperation(String * folder, String * messagePath, MessageFlag flags, Array * customFlags = NULL);
 
         virtual IMAPCopyMessagesOperation * copyMessagesOperation(String * folder, IndexSet * uids, String * destFolder);
         virtual IMAPMoveMessagesOperation * moveMessagesOperation(String * folder, IndexSet * uids, String * destFolder);
-        
+
         virtual IMAPOperation * expungeOperation(String * folder);
-        
+
         virtual IMAPFetchMessagesOperation * fetchMessagesByUIDOperation(String * folder, IMAPMessagesRequestKind requestKind,
                                                                          IndexSet * indexes);
         virtual IMAPFetchMessagesOperation * fetchMessagesByNumberOperation(String * folder, IMAPMessagesRequestKind requestKind,
                                                                             IndexSet * indexes);
         virtual IMAPFetchMessagesOperation * syncMessagesByUIDOperation(String * folder, IMAPMessagesRequestKind requestKind,
                                                                         IndexSet * indexes, uint64_t modSeq);
-        
+
         virtual IMAPFetchContentOperation * fetchMessageByUIDOperation(String * folder, uint32_t uid, bool urgent = false);
         virtual IMAPFetchContentOperation * fetchMessageAttachmentByUIDOperation(String * folder, uint32_t uid, String * partID,
                                                                                  Encoding encoding, bool urgent = false);
@@ -151,10 +151,10 @@ namespace mailcore {
                                                                                  bool urgent = false);
 
         virtual IMAPFetchContentOperation * fetchMessageByNumberOperation(String * folder, uint32_t number, bool urgent = false);
-        virtual IMAPCustomCommandOperation * customCommand(String *command, bool urgent);
+        virtual IMAPCustomCommandOperation * customCommand(String * command, bool urgent = false);
         virtual IMAPFetchContentOperation * fetchMessageAttachmentByNumberOperation(String * folder, uint32_t number, String * partID,
                                                                                     Encoding encoding, bool urgent = false);
-        
+
         virtual IMAPFetchParsedContentOperation * fetchParsedMessageByUIDOperation(String * folder, uint32_t uid, bool urgent = false);
         virtual IMAPFetchParsedContentOperation * fetchParsedMessageByNumberOperation(String * folder, uint32_t number, bool urgent = false);
 
@@ -162,38 +162,38 @@ namespace mailcore {
         virtual IMAPOperation * storeFlagsByNumberOperation(String * folder, IndexSet * numbers, IMAPStoreFlagsRequestKind kind, MessageFlag flags, Array * customFlags = NULL);
         virtual IMAPOperation * storeLabelsByUIDOperation(String * folder, IndexSet * uids, IMAPStoreFlagsRequestKind kind, Array * labels);
         virtual IMAPOperation * storeLabelsByNumberOperation(String * folder, IndexSet * numbers, IMAPStoreFlagsRequestKind kind, Array * labels);
-        
+
         virtual IMAPSearchOperation * searchOperation(String * folder, IMAPSearchKind kind, String * searchString);
         virtual IMAPSearchOperation * searchOperation(String * folder, IMAPSearchExpression * expression);
-        
+
         virtual IMAPIdleOperation * idleOperation(String * folder, uint32_t lastKnownUID);
-        
+
         virtual IMAPFetchNamespaceOperation * fetchNamespaceOperation();
-        
+
         virtual IMAPIdentityOperation * identityOperation(IMAPIdentity * identity);
-        
+
         virtual IMAPOperation * connectOperation();
         virtual IMAPCheckAccountOperation * checkAccountOperation();
         virtual IMAPOperation * disconnectOperation();
-        
+
         virtual IMAPCapabilityOperation * capabilityOperation();
         virtual IMAPQuotaOperation * quotaOperation();
-        
+
         virtual IMAPOperation * noopOperation();
-        
+
         virtual IMAPMessageRenderingOperation * htmlRenderingOperation(IMAPMessage * message, String * folder);
         virtual IMAPMessageRenderingOperation * htmlBodyRenderingOperation(IMAPMessage * message, String * folder);
         virtual IMAPMessageRenderingOperation * plainTextRenderingOperation(IMAPMessage * message, String * folder);
         virtual IMAPMessageRenderingOperation * plainTextBodyRenderingOperation(IMAPMessage * message, String * folder, bool stripWhitespace);
-        
+
     public: // private
         virtual void automaticConfigurationDone(IMAPSession * session);
         virtual void operationRunningStateChanged();
         virtual IMAPAsyncConnection * sessionForFolder(String * folder, bool urgent = false);
-        
+
     private:
         Array * mSessions;
-        
+
         String * mHostname;
         unsigned int mPort;
         String * mUsername;
@@ -236,7 +236,7 @@ namespace mailcore {
                                                                    String * folder,
                                                                    IMAPMessageRenderingType type);
     };
-    
+
 }
 
 #endif
