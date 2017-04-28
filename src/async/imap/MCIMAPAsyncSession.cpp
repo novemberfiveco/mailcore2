@@ -620,7 +620,6 @@ IMAPFetchContentOperation * IMAPAsyncSession::fetchMessageByNumberOperation(Stri
 
 IMAPCustomCommandOperation * IMAPAsyncSession::customCommand(String *command, bool urgent)
 {
-
     IMAPCustomCommandOperation *op = new IMAPCustomCommandOperation();
     op->setMainSession(this);
     op->setCustomCommand(command);

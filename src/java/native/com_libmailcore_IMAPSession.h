@@ -315,6 +315,14 @@ JNIEXPORT jobject JNICALL Java_com_libmailcore_IMAPSession_unsubscribeFolderOper
 
 /*
  * Class:     com_libmailcore_IMAPSession
+ * Method:    customCommand
+ * Signature: (Ljava/lang/String;Z)Lcom/libmailcore/IMAPCustomCommandOperation;
+ */
+JNIEXPORT jobject JNICALL Java_com_libmailcore_IMAPSession_customCommand
+  (JNIEnv *, jobject, jstring, jboolean);
+
+/*
+ * Class:     com_libmailcore_IMAPSession
  * Method:    appendMessageOperation
  * Signature: (Ljava/lang/String;[BILjava/util/List;)Lcom/libmailcore/IMAPAppendMessageOperation;
  */

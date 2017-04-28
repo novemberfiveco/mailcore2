@@ -267,6 +267,16 @@
 - (MCOIMAPOperation *) unsubscribeFolderOperation:(NSString *)folder;
 
 /**
+ Returns an operation to run a custom command.
+
+     MCOIMAPOperation * op = [session customCommandOperation:@"CUSTOM COMMAND"];
+     [op start:^(NSError * __nullable error) {
+       ...
+     }];
+*/
+- (MCOIMAPOperation *) customCommandOperation:(NSString *)command;
+
+/**
  Returns an operation to expunge a folder.
 
      MCOIMAPOperation * op = [session expungeOperation:@"INBOX"];
@@ -720,8 +730,8 @@ vanishedMessages will be set only for servers that support QRESYNC. See [RFC5162
 /**
  Returns an operation for custom command.
  @param command is the text representation of the command to be send.
- 
- 
+
+
  MCOIMAPCustomCommandOperation * op = [session customCommandOperation:@"ACTIVATE SERVICE"];
  [op start: ^(NSString * __nullable response, NSError * __nullable error) {
    ...

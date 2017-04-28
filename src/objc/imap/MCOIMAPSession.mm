@@ -39,14 +39,14 @@ public:
     {
         mSession = session;
     }
-    
+
     virtual void log(void * sender, ConnectionLogType logType, Data * data)
     {
         @autoreleasepool {
             [mSession _logWithSender:sender connectionType:(MCOConnectionLogType)logType data:MCO_TO_OBJC(data)];
         }
     }
-    
+
     virtual void queueStartRunning()
     {
         [mSession _queueRunningChanged];
@@ -56,7 +56,7 @@ public:
     {
         [mSession _queueRunningChanged];
     }
-    
+
 private:
     MCOIMAPSession * mSession;
 };
@@ -77,11 +77,11 @@ private:
 
 - (instancetype) init {
     self = [super init];
-    
+
     _session = new IMAPAsyncSession();
     _callbackBridge = new MCOIMAPCallbackBridge(self);
     _session->setOperationQueueCallback(_callbackBridge);
-    
+
     return self;
 }
 
@@ -148,7 +148,7 @@ MCO_OBJC_SYNTHESIZE_SCALAR(dispatch_queue_t, dispatch_queue_t, setDispatchQueue,
 {
     [_connectionLogger release];
     _connectionLogger = [connectionLogger copy];
-    
+
     if (_connectionLogger != nil) {
         _session->setConnectionLogger(_callbackBridge);
     }
@@ -166,7 +166,7 @@ MCO_OBJC_SYNTHESIZE_SCALAR(dispatch_queue_t, dispatch_queue_t, setDispatchQueue,
 {
     [_operationQueueRunningChangeBlock release];
     _operationQueueRunningChangeBlock = [operationQueueRunningChangeBlock copy];
-    
+
     if (_operationQueueRunningChangeBlock != nil) {
         _session->setOperationQueueCallback(_callbackBridge);
     }
@@ -254,6 +254,12 @@ MCO_OBJC_SYNTHESIZE_SCALAR(dispatch_queue_t, dispatch_queue_t, setDispatchQueue,
 - (MCOIMAPOperation *) unsubscribeFolderOperation:(NSString *)folder
 {
     IMAPOperation *coreOp = MCO_NATIVE_INSTANCE->unsubscribeFolderOperation([folder mco_mcString]);
+    return OPAQUE_OPERATION(coreOp);
+}
+
+- (MCOIMAPOperation *) customCommandOperation:(NSString *)command
+{
+    IMAPOperation *coreOp = MCO_NATIVE_INSTANCE->customCommandOperation([command mco_mcString]);
     return OPAQUE_OPERATION(coreOp);
 }
 
@@ -704,7 +710,7 @@ MCO_OBJC_SYNTHESIZE_SCALAR(dispatch_queue_t, dispatch_queue_t, setDispatchQueue,
 {
     if (_operationQueueRunningChangeBlock == NULL)
         return;
-    
+
     _operationQueueRunningChangeBlock();
 }
 
