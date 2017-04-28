@@ -119,12 +119,14 @@ LOCAL_SRC_FILES := \
 	$(pop_src_files) $(provider_src_files) $(renderer_src_files) $(rfc822_src_files) \
 	$(security_src_files) $(smtp_src_files) $(zip_src_files) $(minizip_src_files) \
 	$(async_imap_src_files) $(async_nntp_src_files) $(async_pop_src_files) $(async_smtp_src_files)
-LOCAL_CPPFLAGS := -frtti
-LOCAL_CFLAGS := -DNOCRYPT
+LOCAL_CPPFLAGS := -frtti -Wno-error -fPIC
+LOCAL_CXXFLAGS := -frtti -Wno-error -fPIC
+LOCAL_CFLAGS := -DNOCRYPT -Wno-error -fPIC
 # LOCAL_LDLIBS := -lz -llog \
 #      -lc++_shared -L$(ANDROID_NDK)/sources/cxx-stl/llvm-libc++/libs/$(TARGET_ARCH_ABI)
 LOCAL_LDLIBS := -lz -llog \
 	 -lgnustl_shared -L$(ANDROID_NDK)/sources/cxx-stl/gnu-libstdc++/4.9/libs/$(TARGET_ARCH_ABI)
 LOCAL_DISABLE_FATAL_LINKER_WARNINGS := true
 LOCAL_STATIC_LIBRARIES := etpan sasl2 ssl crypto icu4c xml2 tidy ctemplate
+LOCAL_DISABLE_FATAL_LINKER_WARNINGS := true
 include $(BUILD_SHARED_LIBRARY)
